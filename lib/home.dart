@@ -24,8 +24,8 @@ class Home extends StatelessWidget {
           ),
           IconButton(
             onPressed: () {
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => const Acteurs()));
+              Navigator.push(
+                  context, MaterialPageRoute(builder: (context) => Acteurs()));
               print("J'ai appuyé sur 2");
             },
             icon: const Icon(Icons.theater_comedy,

@@ -4,13 +4,41 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'models/acteurs.dart';
 
-class Acteurs extends StatelessWidget {
-  const Acteurs({super.key});
+class Acteurs extends StatefulWidget {
+  @override
+  ActeursState createState() => ActeursState();
+}
 
+class ActeursState extends State<Acteurs> {
   // final List<String> listeActeurs = const ["Acteur 1", "Acteur 2", "Acteur 3"];
 
-  Future<List<Acteur>> fetchActeurs() async {
+  TextEditingController _textController = TextEditingController();
+
+  List<Acteur> listeComplete = [];
+  List<Acteur> listeFiltree = [];
+
+  @override
+  void initState() {
+    super.initState();
+    fetchActeurs();
+    _textController.addListener(rechercheActeur);
+  }
+
+  void rechercheActeur() {
+    String achercher = _textController.text.toLowerCase();
+    print(achercher);
+    setState(() {
+      listeFiltree = listeComplete
+          .where((acteur) =>
+              acteur.nom.toLowerCase().contains(achercher))
+          .toList();
+    });
+  }
+
+  Future<void> fetchActeurs() async {
     // return ["Acteur A", "Acteur B", "Acteur C"];
+
+    print("Appel API !");
 
     final reponse = await http.get(
         Uri.parse(
@@ -24,51 +52,43 @@ class Acteurs extends StatelessWidget {
     if (reponse.statusCode == 200) {
       List<dynamic> data = json.decode(reponse.body);
       // print(reponse.body); // voir la structure des données de la réponse JSON.
-      return data.map((elt) => Acteur.fromJson(elt)).toList();
-    } else {
-      return [Acteur(personneId: "0", nom: "ERREUR", nbFilm: 0)];
+      listeComplete = data.map((acteur) => Acteur.fromJson(acteur)).toList();
+      listeFiltree = listeComplete;
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Acteurs"), actions: [
-        Expanded(
-            child: TextField(
-                decoration: InputDecoration(
-                  hintText: "Rechercher",
-                ),
-                style: TextStyle(color: Colors.white)))
-      ]),
-      body: FutureBuilder<List<Acteur>>(
-          future: fetchActeurs(),
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Center(child: CircularProgressIndicator());
-            } else if (snapshot.hasError) {
-              return Center(child: Text("Erreur : ${snapshot.error}"));
-            } else {
-              return ListView.builder(
-                itemCount: snapshot.data!.length,
-                itemBuilder: (context, index) {
-                  return ListTile(
-                    leading: ClipRRect(
-                        borderRadius: BorderRadius.circular(25),
-                        child: Image(
-                          image: NetworkImage(
-                              "https://morseweiswlpykaugwtd.supabase.co/storage/v1/object/public/personnes/${snapshot.data![index].personneId}.jpg"),
-                          errorBuilder: (context, error, stackstrace) {
-                            return Image.asset('assets/_inconnu.jpg');
-                          },
-                        )),
-                    title: Text(snapshot.data![index].nom),
-                    subtitle: Text(snapshot.data![index].age.toString()),
-                  );
-                },
-              );
-            }
-          }),
-    );
+        appBar: AppBar(
+          title: Row(children: [
+            Expanded(child: Text("Acteurs")),
+            Expanded(
+                child: TextField(
+                    controller: _textController,
+                    decoration: InputDecoration(
+                      hintText: "Rechercher",
+                      hintStyle: TextStyle(color: Colors.white)),
+                    style: TextStyle(color: Colors.white)))
+          ]),
+        ),
+        body: ListView.builder(
+          itemCount: listeFiltree.length,
+          itemBuilder: (context, index) {
+            return ListTile(
+              leading: ClipRRect(
+                  borderRadius: BorderRadius.circular(25),
+                  child: Image(
+                    image: NetworkImage(
+                        "https://morseweiswlpykaugwtd.supabase.co/storage/v1/object/public/personnes/${listeFiltree[index].personneId}.jpg"),
+                    errorBuilder: (context, error, stackstrace) {
+                      return Image.asset('assets/_inconnu.jpg');
+                    },
+                  )),
+              title: Text(listeFiltree[index].nom),
+              subtitle: Text(listeFiltree[index].age.toString()),
+            );
+          },
+        ));
   }
 }
