@@ -23,7 +23,7 @@ class Acteurs extends StatelessWidget {
 
     if (reponse.statusCode == 200) {
       List<dynamic> data = json.decode(reponse.body);
-      print(reponse.body);
+      // print(reponse.body); // voir la structure des données de la réponse JSON.
       return data.map((elt) => Acteur.fromJson(elt)).toList();
     } else {
       return [Acteur(personneId: "0", nom: "ERREUR", nbFilm: 0)];
@@ -33,7 +33,14 @@ class Acteurs extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Acteurs")),
+      appBar: AppBar(title: const Text("Acteurs"), actions: [
+        Expanded(
+            child: TextField(
+                decoration: InputDecoration(
+                  hintText: "Rechercher",
+                ),
+                style: TextStyle(color: Colors.white)))
+      ]),
       body: FutureBuilder<List<Acteur>>(
           future: fetchActeurs(),
           builder: (context, snapshot) {
@@ -46,6 +53,15 @@ class Acteurs extends StatelessWidget {
                 itemCount: snapshot.data!.length,
                 itemBuilder: (context, index) {
                   return ListTile(
+                    leading: ClipRRect(
+                        borderRadius: BorderRadius.circular(25),
+                        child: Image(
+                          image: NetworkImage(
+                              "https://morseweiswlpykaugwtd.supabase.co/storage/v1/object/public/personnes/${snapshot.data![index].personneId}.jpg"),
+                          errorBuilder: (context, error, stackstrace) {
+                            return Image.asset('assets/_inconnu.jpg');
+                          },
+                        )),
                     title: Text(snapshot.data![index].nom),
                     subtitle: Text(snapshot.data![index].age.toString()),
                   );

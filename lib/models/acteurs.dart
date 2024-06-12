@@ -23,8 +23,8 @@ class Acteur {
       this.popularite});
 
   Acteur.fromJson(Map<String, dynamic> json)
-      : personneId = json['personne_id'],
-        nom = json['nom'],
+      : personneId = json['personne_id'] ?? "0000",
+        nom = json['nom'] ?? "inconnu",
         metaphone = json['metaphone'],
         naissance = json['naissance'],
         age = json['age'],

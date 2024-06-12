@@ -11,11 +11,11 @@ class MainApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      theme: ThemeData(
-        appBarTheme: const AppBarTheme(
-          backgroundColor: Color(0Xff663399),
-          foregroundColor: Colors.white,
-        ),
+        theme: ThemeData(
+          appBarTheme: const AppBarTheme(
+            backgroundColor: Color(0Xff663399),
+            foregroundColor: Colors.white,
+          ),
         pageTransitionsTheme: const PageTransitionsTheme(
           builders: <TargetPlatform, PageTransitionsBuilder>{
             TargetPlatform.android: FadeUpwardsPageTransitionsBuilder(),
